@@ -2,3 +2,5 @@
 
 .idea
 /www/
+
+!/www/example.xml

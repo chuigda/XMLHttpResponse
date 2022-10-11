@@ -3,6 +3,8 @@ use std::io::Write;
 
 use xjbutil::minhttpd::{HttpBody, HttpHeaders, HttpParams, HttpUri};
 
+const XPY_CONTENT: &'static str = include_str!("x.py");
+
 pub fn http_to_py(
     uri: HttpUri,
     headers: HttpHeaders,
@@ -30,10 +32,15 @@ pub fn http_to_py(
                 if kv.len() != 2 {
                     continue;
                 }
-                write!(buf, "ParsedHttpBody[\"{}\"] = \"{}\"", kv[0], kv[1])?;
+                write!(buf, "ParsedHttpBody[\"{}\"] = \"{}\"\n", kv[0], kv[1])?;
             }
+        } else {
+            write!(buf, "ParsedHttpBody = None\n")?;
         }
+    } else {
+        write!(buf, "HttpBody = None\n")?;
     }
+    write!(buf, "{}", XPY_CONTENT)?;
 
     Ok(buf)
 }

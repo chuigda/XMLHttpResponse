@@ -17,7 +17,7 @@ fn main() {
 
     httpd.route_fn(
         "",
-        |uri, headers, params, body| process_xml_file("www/test.xml", uri, headers, params, body)
+        |uri, headers, params, body| process_xml_file("www/example.xml", uri, headers, params, body)
     );
 
     httpd.serve(SocketAddrV4::from_str("127.0.0.1:3080").unwrap()).unwrap();
