@@ -1,0 +1,9 @@
+[package]
+name = "xml-http-response"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+xjbutil = { version="0.8", default-features=false, features=["minhttpd", "liberty"] }
+minidom = "0.15"
+urlencoding = "2"
