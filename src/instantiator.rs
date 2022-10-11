@@ -1,31 +1,8 @@
 use std::collections::HashMap;
-use std::error::Error;
 use minidom::{Element, Node};
 
-pub fn instantiate(
-    document_node: &Element,
-    script_output: String
-) -> Result<Element, Box<dyn Error>> {
-    let lines = script_output.trim().split('\n');
-    let mut output_variables = HashMap::new();
-    for line in lines {
-        let trimmed_line = line.trim();
-        if !(trimmed_line.starts_with('$') && trimmed_line.contains('=')) {
-            continue;
-        }
-
-        let parts = trimmed_line.split('=').collect::<Vec<_>>();
-        let var_name = parts[0];
-        let value = urlencoding::decode(parts[1])?.to_string();
-
-        if var_name == "$FATAL" {
-            return Err(value.into());
-        }
-
-        output_variables.insert(var_name, value);
-    }
-
-    Ok(instantiate_elem(document_node, &output_variables).unwrap())
+pub fn instantiate(document_node: &Element, vars: HashMap<&str, String>) -> Element {
+    instantiate_elem(document_node, &vars).unwrap()
 }
 
 fn lookup_var<'a>(vars: &'a HashMap<&str, String>, var_name: &str) -> &'a str {

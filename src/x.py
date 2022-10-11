@@ -10,6 +10,16 @@ def x_export_var(var_name, value):
     print('$', var_name, '=', quote(str(value)), sep='')
 
 
+def x_fatal(reason):
+    print('$FATAL=', quote(str(reason)), sep='')
+    exit(0)
+
+
+def x_redirect(dest):
+    print('$REDIRECT=', quote(str(dest)), sep='')
+    exit(0)
+
+
 # Convince IDEs that we have already defined these things (though actually yes)
 __M_detected_globals = globals()
 
