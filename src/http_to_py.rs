@@ -6,10 +6,10 @@ use xjbutil::minhttpd::{HttpBody, HttpHeaders, HttpParams, HttpUri};
 const XPY_CONTENT: &'static str = include_str!("x.py");
 
 pub fn http_to_py(
-    uri: HttpUri,
-    headers: HttpHeaders,
-    params: HttpParams,
-    body: HttpBody
+    uri: &HttpUri,
+    headers: &HttpHeaders,
+    params: &HttpParams,
+    body: &HttpBody
 ) -> Result<Vec<u8>, Box<dyn Error>> {
     let mut buf = Vec::new();
     write!(buf, "HttpUri = \"{}\"\n", uri)?;

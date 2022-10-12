@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<document xmlns="active-xhtml">
+    <html>
+        <body />
+    </html>
+    <script>
+
+if 'Xflags' not in globals():
+    from x import *
+
+x_redirect('/no-js.xml')
+
+    </script>
+</document>

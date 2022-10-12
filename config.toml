@@ -1,0 +1,5 @@
+socket_addr = "127.0.0.1:3080"
+work_dir = "www"
+mimes = [
+    { ext=".txt", mime="text/plain" }
+]

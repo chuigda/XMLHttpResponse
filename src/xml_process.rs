@@ -9,18 +9,18 @@ use minidom::Element;
 use xjbutil::minhttpd::{HttpBody, HttpHeaders, HttpParams, HttpResponse, HttpUri};
 
 use crate::http_to_py::http_to_py;
-use crate::instantiator::instantiate;
+use crate::instantiate::instantiate;
 
 const XML_NS: &'static str = "active-xhtml";
 
 pub fn process_xml_file(
     file_name: &str,
+    file_content: String,
     uri: HttpUri,
     headers: HttpHeaders,
     params: HttpParams,
     body: HttpBody
 ) -> Result<HttpResponse, Box<dyn Error>> {
-    let file_content = read_to_string(file_name)?;
     let xml_dom = file_content.parse::<Element>()?;
     if !xml_dom.has_child("html", XML_NS) {
         return Err(format!("in file {}: XML should at least contain document node", file_name).into());
@@ -28,8 +28,8 @@ pub fn process_xml_file(
 
     let script_node = xml_dom.get_child("script", XML_NS);
     return if let Some(script) = script_node {
-        let script = script.text();
-        let mut py_code_buf = http_to_py(uri, headers, params, body)?;
+        let script = load_script_string(script)?;
+        let mut py_code_buf = http_to_py(&uri, &headers, &params, &body)?;
         write!(py_code_buf, "\n\n{}", script)?;
 
         let mut child = Command::new("python")
@@ -77,6 +77,14 @@ pub fn process_xml_file(
             .add_header("Content-Type", "text/html")
             .set_payload(document)
             .build())
+    }
+}
+
+fn load_script_string(script_node: &Element) -> Result<String, Box<dyn Error>> {
+    if let Some(file_name) = script_node.attr("ref") {
+        Ok(read_to_string(file_name)?)
+    } else {
+        Ok(script_node.text())
     }
 }
 

@@ -44,10 +44,7 @@ fn is_falsy_value(s: &str) -> bool {
     || s == "False"
     || s == "undefined"
     || s == "null"
-    || s == "0"
     || s == "[]"
-    || s == "\"\""
-    || s == "''"
     || s == ""
 }
 
