@@ -25,6 +25,5 @@ else: # (prev_value == 0) or (prev_value == None)
     x_export_var('prev_value', 1)
     x_export_var('show', 'False')
     x_export_var('text', 'click to show')
-
     </script>
 </document>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<document xmlns="active-xhtml">
+    <html>
+        <body>
+            <div>
+                $counter
+            </div>
+            <form method="post">
+                <input type="hidden" name="counter" value="$counter"/>
+                <input type="submit" value="Click me"/>
+            </form>
+        </body>
+    </html>
+    <script ref="extern.py" />
+</document>

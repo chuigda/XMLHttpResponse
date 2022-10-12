@@ -63,4 +63,3 @@ def x_http_body_value(key: str) -> str | None:
         return unquote(r_candidate)
     else:
         return None
-
