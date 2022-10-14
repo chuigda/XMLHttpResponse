@@ -3,9 +3,11 @@
     <html>
         <meta charset="utf-8" />
         <body>
-            <span x-for="$arr" x-if="$XFORV:1">
-                $XFORV:0
-            </span>
+            <div x-for="$arr" x-if="$XFORV:1">
+                <span x-for="$XFORV:0" x-if="$XFORV">
+                    $XFORV
+                </span>
+            </div>
         </body>
     </html>
     <script>
@@ -13,12 +15,10 @@ if 'Xflags' not in globals():
     from x import *
 
 arr = [
-    ['不', 1],
-    ['可', ''],
-    ['许', 1],
-    ['以', ''],
-    ['色', 1],
-    ['色', 1]
+    [['魔', False, '鬼', False, '法', '一', '时', '爽'], '1'],
+    [['像', '跳楼', '一样', '最后', '火葬场'], ''],
+    [['现代', '社会', False, '', '到处', '都是', '骗'], '1'],
+    [['因果', '循环', '报应', '不爽'], '']
 ]
 
 x_export_array('arr', arr)

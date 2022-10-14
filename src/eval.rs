@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[cfg_attr(debug_assertions, derive(Debug))]
 pub enum PyOutputValue {
@@ -27,15 +27,16 @@ impl PyOutputValue {
     }
 }
 
+#[cfg_attr(debug_assertions, derive(Debug))]
 pub struct EvalContext {
-    values: HashMap<String, PyOutputValue>,
+    values: BTreeMap<String, PyOutputValue>,
     x_for_chain: RefCell<Vec<String>>
 }
 
 impl EvalContext {
     pub fn new() -> Self {
         Self {
-            values: HashMap::new(),
+            values: BTreeMap::new(),
             x_for_chain: RefCell::new(Vec::new())
         }
     }
@@ -98,6 +99,30 @@ impl EvalContext {
             PyOutputValue::PlainValue(v) => Some(v.as_str()),
             PyOutputValue::Array(_) => Some("Array")
         }
+    }
+
+    pub fn eval_var_expr_raw(&self, var_expr: &str) -> Option<&PyOutputValue> {
+        if !var_expr.starts_with('$') {
+            return None;
+        }
+
+        let mut parts = var_expr.split(':');
+        let mut curr_var_value = self.lookup_var(parts.next()?)?;
+
+        while let Some(part) = parts.next() {
+            if let PyOutputValue::Array(arr) = curr_var_value {
+                if let Ok(idx) = part.parse::<usize>() {
+                    if idx < arr.len() {
+                        curr_var_value = self.lookup_var(arr[idx].as_str())?;
+                        continue;
+                    }
+                }
+            }
+
+            return None;
+        }
+
+        Some(curr_var_value)
     }
 
     pub fn lookup_var(&self, var_name: &str) -> Option<&PyOutputValue> {

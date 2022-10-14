@@ -51,7 +51,7 @@ fn instantiate_elem(
     ctx: &EvalContext,
 ) -> Option<Either<Vec<Element>, Element>> {
     if let Some(loop_var) = node.attr("x-for") {
-        if let Some(PyOutputValue::Array(arr)) = ctx.lookup_var(loop_var) {
+        if let Some(PyOutputValue::Array(arr)) = ctx.eval_var_expr_raw(loop_var) {
             let mut vec = Vec::new();
             for arr_value in arr {
                 ctx.push_x_for(arr_value);
