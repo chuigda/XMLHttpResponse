@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<document xmlns="active-xhtml">
+    <html>
+        <meta charset="utf-8" />
+        <body>
+            <span x-for="$arr" x-if="$XFORV:1">
+                $XFORV:0
+            </span>
+        </body>
+    </html>
+    <script>
+if 'Xflags' not in globals():
+    from x import *
+
+arr = [
+    ['不', 1],
+    ['可', ''],
+    ['许', 1],
+    ['以', ''],
+    ['色', 1],
+    ['色', 1]
+]
+
+x_export_array('arr', arr)
+    </script>
+</document>

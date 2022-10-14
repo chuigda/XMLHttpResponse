@@ -1,36 +1,30 @@
-use std::collections::HashMap;
 use minidom::{Element, Node};
+use xjbutil::either::Either;
 
-pub fn instantiate(document_node: &Element, vars: HashMap<&str, String>) -> Element {
-    instantiate_elem(document_node, &vars).unwrap()
+use crate::eval::{EvalContext, PyOutputValue};
+
+pub fn instantiate(document_node: &Element, ctx: &EvalContext) -> Element {
+    instantiate_one(document_node, ctx).unwrap()
 }
 
-fn lookup_var<'a>(vars: &'a HashMap<&str, String>, var_name: &str) -> &'a str {
-    if let Some(var_value) = vars.get(var_name) {
-        var_value
-    } else {
-        "undefined"
-    }
-}
-
-fn instantiate_attr(value: &str, vars: &HashMap<&str, String>) -> String {
-    let trimmed_value = value.trim();
-    if trimmed_value.starts_with("$$") {
+fn instantiate_attr(value: &str, ctx: &EvalContext) -> String {
+    let value = value.trim();
+    if value.starts_with("$$") {
         value.replace("$$", "$").into()
-    } else if trimmed_value.starts_with('$') {
-        lookup_var(vars, trimmed_value).to_string()
+    } else if value.starts_with('$') {
+        ctx.eval_var_expr(value).unwrap_or("undefined").to_string()
     } else {
         value.to_string()
     }
 }
 
-fn instantiate_text(text: &str, vars: &HashMap<&str, String>) -> String {
+fn instantiate_text(text: &str, ctx: &EvalContext) -> String {
     let mut ret = String::new();
     for piece in text.split_whitespace() {
         if piece.starts_with("$$") {
             ret.push_str(&piece.replace("$$", "$"));
         } else if piece.starts_with("$") {
-            ret.push_str(lookup_var(vars, piece));
+            ret.push_str(ctx.eval_var_expr(piece).unwrap_or("undefined"));
         } else {
             ret.push_str(piece);
         }
@@ -39,21 +33,47 @@ fn instantiate_text(text: &str, vars: &HashMap<&str, String>) -> String {
     ret
 }
 
-fn is_falsy_value(s: &str) -> bool {
-    s == "false"
-    || s == "False"
-    || s == "undefined"
-    || s == "null"
-    || s == "[]"
-    || s == ""
+fn is_falsy_value(s: Option<&str>) -> bool {
+    if let Some(s) = s {
+        s == "false"
+        || s == "False"
+        || s == "undefined"
+        || s == "null"
+        || s == "[]"
+        || s == ""
+    } else {
+        true
+    }
 }
 
 fn instantiate_elem(
     node: &Element,
-    vars: &HashMap<&str, String>
+    ctx: &EvalContext,
+) -> Option<Either<Vec<Element>, Element>> {
+    if let Some(loop_var) = node.attr("x-for") {
+        if let Some(PyOutputValue::Array(arr)) = ctx.lookup_var(loop_var) {
+            let mut vec = Vec::new();
+            for arr_value in arr {
+                ctx.push_x_for(arr_value);
+                if let Some(element) = instantiate_one(node, ctx) {
+                    vec.push(element);
+                }
+                ctx.pop_x_for();
+            }
+
+            return Some(Either::Left(vec));
+        }
+    }
+
+    instantiate_one(node, ctx).map(Either::Right)
+}
+
+fn instantiate_one(
+    node: &Element,
+    ctx: &EvalContext
 ) -> Option<Element> {
     if let Some(condition) = node.attr("x-if") {
-        if is_falsy_value(lookup_var(vars, condition)) {
+        if is_falsy_value(ctx.eval_var_expr(condition)) {
             return None;
         }
     }
@@ -64,19 +84,26 @@ fn instantiate_elem(
             continue;
         }
 
-        let instantiated_value = instantiate_attr(value, vars);
+        let instantiated_value = instantiate_attr(value, ctx);
         builder = builder.attr(attr_name, instantiated_value);
     }
 
     for node in node.nodes() {
         match node {
             Node::Element(elem) => {
-                if let Some(instantiated_elem) = instantiate_elem(elem, vars) {
-                    builder = builder.append(Node::Element(instantiated_elem));
+                if let Some(instantiated_elem) = instantiate_elem(elem, ctx) {
+                    match instantiated_elem {
+                        Either::Left(sub_elements) => {
+                            builder = builder.append_all(sub_elements.into_iter());
+                        },
+                        Either::Right(element) => {
+                            builder = builder.append(element);
+                        }
+                    }
                 }
             },
             Node::Text(text) => {
-                builder = builder.append(Node::Text(instantiate_text(text, vars)));
+                builder = builder.append(Node::Text(instantiate_text(text, ctx)));
             }
         }
     }

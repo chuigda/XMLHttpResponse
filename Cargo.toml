@@ -4,7 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-xjbutil = { version="0.8", default-features=false, features=["minhttpd", "liberty", "std-ext"] }
+xjbutil = { version="0.8", default-features=false, features=[
+    "either",
+    "liberty",
+    "minhttpd",
+    "std-ext"
+] }
 minidom = "0.15"
 urlencoding = "2"
 toml = "0.5"
