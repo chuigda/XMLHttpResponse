@@ -19,6 +19,7 @@ Xflags = 1
 
 
 def xm_set_http_uri(uri: str):
+    global HttpUri
     HttpUri = uri
 
 
@@ -31,6 +32,7 @@ def xm_add_http_query(query_param: str, value: str):
 
 
 def xm_set_http_body(body: str):
+    global HttpBody
     HttpBody = body
 
 
