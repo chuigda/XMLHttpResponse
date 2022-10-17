@@ -5,10 +5,10 @@
     </html>
     <script>
 
-if 'Xflags' not in globals():
-    from x import *
+        if 'Xflags' not in globals():
+            from www.x import *
 
-x_redirect('/no-js.xml')
+        x_redirect('/no-js.xml')
 
     </script>
 </document>

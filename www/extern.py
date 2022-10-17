@@ -1,5 +1,5 @@
 if 'Xflags' not in globals():
-    from x import *
+    from www.x import *
 
 counter = x_http_body_value('counter')
 x_printerr(ParsedHttpBody)
