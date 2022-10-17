@@ -8,6 +8,7 @@ xjbutil = { version="0.8", default-features=false, features=[
     "either",
     "liberty",
     "minhttpd",
+    "rand",
     "std-ext"
 ] }
 minidom = "0.15"

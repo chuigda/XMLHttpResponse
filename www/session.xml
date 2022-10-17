@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<document xmlns="active-xhtml">
+    <html>
+        <body>
+            <div>
+                $content
+            </div>
+            <form method="post">
+                <input type="hidden" name="session_id" value="$session_id" />
+                <input type="text" name="text" value="$content" />
+                <input type="submit" value="Click me"/>
+            </form>
+        </body>
+    </html>
+    <script>
+if 'Xflags' not in globals():
+    from www.x import *
+
+session_id = x_http_body_value('session_id')
+if session_id is None:
+    session_id = '12345678'
+    x_export_var('content', 'write anything!')
+else:
+    text = x_http_body_value('text')
+    x_put_session_data(session_id, text)
+
+    session_data = x_acquire_session(session_id)
+    x_export_var('content', session_data)
+x_export_var('session_id', session_id)
+    </script>
+</document>

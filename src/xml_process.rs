@@ -19,7 +19,9 @@ pub fn process_xml_file(
     uri: HttpUri,
     headers: HttpHeaders,
     params: HttpParams,
-    body: HttpBody
+    body: HttpBody,
+    listen_socket_addr: &str,
+    session_auth_token: &str
 ) -> Result<HttpResponse, Box<dyn Error>> {
     let xml_dom = file_content.parse::<Element>()?;
     if !xml_dom.has_child("html", XML_NS) {
@@ -29,7 +31,14 @@ pub fn process_xml_file(
     let script_node = xml_dom.get_child("script", XML_NS);
     return if let Some(script) = script_node {
         let script = load_script_string(script)?;
-        let mut py_code_buf = http_to_py(&uri, &headers, &params, &body)?;
+        let mut py_code_buf = http_to_py(
+            &uri,
+            &headers,
+            &params,
+            &body,
+            listen_socket_addr,
+            session_auth_token
+        )?;
         write!(py_code_buf, "\n\n{}", script)?;
 
         let mut child = Command::new("python")

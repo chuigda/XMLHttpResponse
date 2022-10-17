@@ -1,6 +1,13 @@
 import sys
+from urllib.request import Request, urlopen
 from urllib.parse import quote, unquote
 
+
+XmSocketAddr: str = ''
+
+XmApiAuthToken: str = ''
+
+XmSessionData: str = ''
 
 HttpUri: str = ''
 
@@ -16,6 +23,16 @@ Xflags = 1
 
 
 # for importing items
+
+
+def xm_set_socket_addr(socket_addr: str):
+    global XmSocketAddr
+    XmSocketAddr = socket_addr
+
+
+def xm_set_auth_token(auth_token: str):
+    global XmApiAuthToken
+    XmApiAuthToken = auth_token
 
 
 def xm_set_http_uri(uri: str):
@@ -46,6 +63,26 @@ def xm_add_parsed_http_body_item(key: str, value: str):
 
 
 # reading variables
+
+
+def x_acquire_session(session_id: str):
+    req = Request('http://' + XmSocketAddr + '/xhr-xapi/session/get?session=' + session_id)
+    req.add_header('x-xhr-api-auth-token', XmApiAuthToken)
+    try:
+        resp = urlopen(req)
+        resp_text = resp.read().decode('utf-8')
+        return resp_text
+    except:
+        pass
+
+
+def x_put_session_data(session_id: str, session_data: str):
+    req = Request('http://' + XmSocketAddr + '/xhr-xapi/session/set?session=' + session_id,
+                  data=session_data.encode('utf-8'))
+    req.method = 'post'
+    req.add_header('x-xhr-api-auth-token', XmApiAuthToken)
+    req.add_header('content-type', 'application/octet-stream')
+    urlopen(req)
 
 
 def x_http_header(header_name: str) -> str:
